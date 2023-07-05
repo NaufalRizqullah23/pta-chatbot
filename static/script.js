@@ -1,28 +1,54 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.querySelector("form");
+const chatForm = document.getElementById("chat-form");
+const messageInput = document.getElementById("message-input");
+const chatContainer = document.getElementById("chat-container");
 
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const messageInput = document.querySelector('input[name="message"]');
-    const message = messageInput.value;
-    messageInput.value = "";
+chatForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const message = messageInput.value;
 
-    fetch("/chat", {
-      method: "POST",
-      body: new URLSearchParams({ message }),
-    })
-      .then(function (response) {
-        return response.text();
-      })
-      .then(function (response) {
-        const chatContainer = document.querySelector("#chat-container");
-        const chatBubble = document.createElement("div");
-        chatBubble.classList.add("chat-bubble");
-        chatBubble.textContent = response;
-        chatContainer.appendChild(chatBubble);
-      })
-      .catch(function (error) {
-        console.error("Error:", error);
-      });
-  });
+  //display user message
+  displayMessage("user", message);
+
+  //clear the input field
+  messageInput.value = "";
+
+  //send the message to the server and recieve the bot response
+  fetch("/chat", {
+    method: "POST",
+    body: new URLSearchParams({
+      message: message,
+    }),
+  })
+    .then((response) => response.text())
+    .then((response) => {
+      //display bot response
+      displayMessage("bot", response);
+    });
 });
+
+function displayMessage(sender, message) {
+  const messageElement = document.createElement("div");
+  messageElement.classList.add(
+    "flex",
+    "mb-2",
+    sender === "user" ? "justify-end" : "justify-start"
+  );
+
+  const bubbleElement = document.createElement("div");
+  bubbleElement.classList.add(
+    "bg-gray-200",
+    "py-2",
+    "px-4",
+    "rounded-lg",
+    "max-w-sm",
+    "break-words"
+  );
+
+  bubbleElement.textContent = message;
+
+  messageElement.appendChild(bubbleElement);
+  chatContainer.appendChild(messageElement);
+
+  //scroll to the bottom of the chat container
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}

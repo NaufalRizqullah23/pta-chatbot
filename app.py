@@ -47,27 +47,12 @@ data = pd.DataFrame({"patterns": inputs, "tags": tags})
 tokenizer = Tokenizer(num_words=5000)
 tokenizer.fit_on_texts(data['patterns'])
 
-# Encoding the outputs
+# initialize Label Encoder
 le = LabelEncoder()
 le.fit_transform(data['tags'])
 
-# function to preprocess the user's message
-
 
 def preprocess_message(message):
-    # text_p = []
-    # prediction_input = message
-    # prediction_input = [letters.lower(
-    # ) for letters in prediction_input if letters not in string.punctuation]
-    # prediction_input = ''.join(prediction_input)
-    # text_p.append(prediction_input)
-
-    # prediction_input = tokenizer.text_to_sequences(text_p)
-    # prediction_input = np.array(prediction_input).reshape(-1)
-    # prediction_input = pad_sequences(
-    #     [prediction_input], model.input_shape)
-    # return prediction_input
-
     prediction_input = message.lower()
     prediction_input = ''.join(
         [char for char in prediction_input if char not in string.punctuation])
@@ -76,14 +61,9 @@ def preprocess_message(message):
     prediction_input = pad_sequences(
         prediction_input, maxlen=model.input_shape[1])
     return prediction_input
-# function to postprocess the model's response
 
 
 def postprocess_response(response):
-    # response_tag = model.le.inverse_transfrom([response])[0]
-    # processed_response = random.choice(response[response_tag])
-    # return processed_response
-
     response_tag = np.argmax(response)
     response_tag = le.inverse_transform([response_tag])[0]
     processed_response = random.choice(responses[response_tag])
@@ -99,9 +79,6 @@ def home():
 def chat():
     message = request.form['message']
     processed_message = preprocess_message(message)
-
-    # convert the processed message into model input format
-    # model_input = np.array([processed_message])
 
     # make prediction using the model
     predicted_output = model.predict(processed_message)[0]
