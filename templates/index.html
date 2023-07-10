@@ -4,29 +4,122 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename = 'logo-pta.png') }}"
+    />
     <title>CEPAT</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css"
     />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+      .font-roboto {
+        font-family: "Roboto", sans-serif;
+      }
+      .base-black {
+        color: #19282f;
+      }
+      .background {
+        background-image: url("/static/bg.png");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+      }
+      .user-bubble {
+        background-color: #42855b;
+        color: white;
+      }
+      .bot-bubble {
+        background-color: white;
+      }
+    </style>
   </head>
-  <body class="bg-gray-100">
-    <div class="flex justify-center items-center h-screen">
-      <div class="max-w-lg w-full p-6 bg-white rounded-lg shadow-md">
-        <h1 class="text-3xl font-bold mb-4">CEPAT</h1>
+  <body class="background">
+    <div class="flex flex-col justify-center items-center min-h-screen">
+      <div
+        class="max-w-screen min-h-screen w-full p-6 px-24 font-roboto base-black"
+      >
+        <div class="flex items-center justify-center mb-8">
+          <img
+            src="{{ url_for('static', filename = 'logo-pta.png') }}"
+            alt="Logo PTA Bandung"
+            class="mr-2 w-20"
+          />
+        </div>
+        <div class="flex items-center justify-center">
+          <p class="text-2xl font-black tracking-widest">
+            Selamat Datang di CEPAT
+          </p>
+        </div>
+        <p class="text-base text-center text-gray-500 mb-24">
+          Chatbot Engine Pengadilan Agama Terdepan
+        </p>
+        <div class="flex space-x-11 mb-10 justify-center items-center">
+          <div class="flex flex-col items-center">
+            <div class="flex items-center mb-4 space-x-5">
+              <img
+                src="{{ url_for('static', filename = 'icon-otomatis.png') }}"
+                alt="Icon Otomatis"
+                class="w-6"
+              />
+              <p class="text-sm">Otomatis</p>
+            </div>
+            <div class="max-w-sm rounded-lg bg-white py-5 px-4">
+              <p class="text-sm">
+                Dapatkan jawaban secara langsung secara otomatis
+              </p>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="flex items-center mb-4 space-x-5">
+              <img
+                src="{{ url_for('static', filename = 'icon-layanan.png') }}"
+                alt="Icon Layanan"
+                class="w-6"
+              />
+              <p class="text-sm">Layanan</p>
+            </div>
+            <div class="max-w-sm rounded-lg bg-white py-5 px-4">
+              <p class="text-sm">
+                CEPAT akan menjawab pertanyaan seputar layanan yang ada di
+                pengadilan agama
+              </p>
+            </div>
+          </div>
+          <div class="flex flex-col items-center">
+            <div class="flex items-center mb-4 space-x-5">
+              <img
+                src="{{ url_for('static', filename = 'icon-check.png') }}"
+                alt="Icon Pertanyaan"
+                class="w-6"
+              />
+              <p class="text-sm">Contoh Pertanyaan</p>
+            </div>
+            <div class="max-w-sm rounded-lg bg-white py-5 px-4">
+              <p class="text-sm">
+                "Saya memiliki masalah sengketa harta waris, bagaimana tindak
+                prosesnya?
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="text-xs mb-24 text-center">
+          CEPAT adalah chatbot yang melayani pertanyaan seputar perkara yang
+          diurus oleh pengadilan agama. Silahkan tanyakan pertanyaan anda
+          seputar layanan
+        </div>
         <div id="chat-container"></div>
-        <form id="chat-form">
+        <form id="chat-form" class="flex items-center justify-between mt-4">
           <input
             type="text"
             name="message"
             id="message-input"
-            autofocus
-            class="border border-gray-300 p-2 w-full mb-4 rounded-lg"
-          />
-          <input
-            type="submit"
-            value="send"
-            class="bg-blue-500 text-white py-2 px-4 rounded-lg"
+            class="flex-grow border border-gray-300 px-7 py-3 mr-2 rounded-3xl shadow-md"
+            placeholder="Ajukan pertanyaan terkait layanan Pengadilan Tinggi Agama..."
           />
         </form>
       </div>

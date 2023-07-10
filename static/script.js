@@ -26,6 +26,10 @@ chatForm.addEventListener("submit", (e) => {
     });
 });
 
+function ScrollToBottom() {
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
 function displayMessage(sender, message) {
   const messageElement = document.createElement("div");
   messageElement.classList.add(
@@ -36,19 +40,17 @@ function displayMessage(sender, message) {
 
   const bubbleElement = document.createElement("div");
   bubbleElement.classList.add(
-    "bg-gray-200",
     "py-2",
     "px-4",
     "rounded-lg",
-    "max-w-sm",
-    "break-words"
+    "max-w-lg",
+    "break-words",
+    sender === "user" ? "user-bubble" : "bot-bubble"
   );
 
   bubbleElement.textContent = message;
 
   messageElement.appendChild(bubbleElement);
   chatContainer.appendChild(messageElement);
-
-  //scroll to the bottom of the chat container
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  ScrollToBottom();
 }
