@@ -12,7 +12,7 @@ _TROUBLESHOOT_
 if you're having nltk LookUpError punkt
 open python command in shell, and enter this command:
 
-> > > import nltk
-> > > nltk.download()
+import nltk
+nltk.download()
 
 then punkt pop-up will appear, then download the necessary package
