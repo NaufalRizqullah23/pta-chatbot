@@ -9,12 +9,11 @@ from keras.models import load_model
 from keras.preprocessing.text import Tokenizer
 from keras_preprocessing.sequence import pad_sequences
 from sklearn.preprocessing import LabelEncoder
+from nltk.stem import WordNetLemmatizer
 
 
 app = Flask(__name__)
 
-# load the model
-model = load_model('chat_model.h5', compile=False)
 
 # load the dataset
 with open('intents.json', 'r', encoding='utf-8') as content:
@@ -43,30 +42,74 @@ for intent in data1['intents']:
 
 data = pd.DataFrame({"patterns": inputs, "tags": tags})
 
+#removing punctuation
+data['patterns'] = data['patterns'].apply(lambda wrd:[ltrs.lower() for ltrs in wrd if ltrs not in string.punctuation])
+data['patterns'] = data['patterns'].apply(lambda wrd: ''.join(wrd))
+
+
+#lemmatization
+lemmatizer = WordNetLemmatizer()
+words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
+words = sorted(list(set(words)))
+
+#class sorting
+classes = sorted(list(set(classes)))
+
 # load the tokenizer
 tokenizer = Tokenizer(num_words=5000)
 tokenizer.fit_on_texts(data['patterns'])
+train = tokenizer.texts_to_sequences(data['patterns'])
+
+#padding
+x_train = pad_sequences(train)
 
 # initialize Label Encoder
 le = LabelEncoder()
-le.fit_transform(data['tags'])
+y_train = le.fit_transform(data['tags'])
+
+
+# #input shape
+input_shape = x_train.shape[1]
+
+# #define vocabulary
+vocabulary = len(tokenizer.word_index)
+
+# #output length
+output_length = le.classes_.shape[0]
+
+# load the model
+model = load_model('model_rnn_fix.h5')
+
+threshold = 0.65
 
 
 def preprocess_message(message):
+    # text_p = []
+    # prediction_input = message
+    # prediction_input = [letters.lower() for letters in prediction_input if letters not in string.punctuation]
+    # prediction_input = ''.join(prediction_input)
+    # text_p.append(prediction_input)
     prediction_input = message.lower()
     prediction_input = ''.join(
         [char for char in prediction_input if char not in string.punctuation])
     text_p = [prediction_input]
     prediction_input = tokenizer.texts_to_sequences(text_p)
-    prediction_input = pad_sequences(
-        prediction_input, maxlen=model.input_shape[1])
+    prediction_input = np.array(prediction_input).reshape(-1)
+    prediction_input = pad_sequences([prediction_input],input_shape)
+
+    print("input shape: ",prediction_input.shape)
     return prediction_input
 
-
 def postprocess_response(response):
-    response_tag = np.argmax(response)
-    response_tag = le.inverse_transform([response_tag])[0]
-    processed_response = random.choice(responses[response_tag])
+    response_max = np.max(response)
+    response_class = np.argmax(response)
+
+    if response_max >= threshold:
+        response_tag = le.inverse_transform([response_class])[0]
+        processed_response = random.choice(responses[response_tag])
+    else:
+        processed_response = "Maaf, saya belum tahu.\nUntuk info lebih lanjut, kamu bisa mengunjungi situs berikut : https://www.pta-bandung.go.id/"
+    
     return processed_response
 
 
@@ -79,6 +122,10 @@ def home():
 def chat():
     message = request.form['message']
     processed_message = preprocess_message(message)
+
+    #debuggin
+    print("input message: ",message)
+    print("processed message: ",processed_message)
 
     # make prediction using the model
     predicted_output = model.predict(processed_message)[0]
