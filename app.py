@@ -86,9 +86,6 @@ vocabulary = len(tokenizer.word_index)
 # #output length
 output_length = le.classes_.shape[0]
 
-# # load the model
-# model = load_model('model_rnn_fix.h5')
-
 #load model architecture
 with open("model_rnn.json", "r") as json_file:
     loaded_model_json = json_file.read()
@@ -107,10 +104,7 @@ def preprocess_message(message):
     prediction_input = [letters.lower() for letters in prediction_input if letters not in string.punctuation]
     prediction_input = ''.join(prediction_input)
     text_p.append(prediction_input)
-    # prediction_input = message.lower()
-    # prediction_input = ''.join(
-    #     [char for char in prediction_input if char not in string.punctuation])
-    # text_p = [prediction_input]
+
     prediction_input = tokenizer.texts_to_sequences(text_p)
     prediction_input = np.array(prediction_input).reshape(-1)
     prediction_input = pad_sequences([prediction_input],input_shape)
@@ -141,7 +135,7 @@ def chat():
     message = request.form['message']
     processed_message = preprocess_message(message)
 
-    #debuggin
+    #debugging
     print("input message: ",message)
     print("processed message: ",processed_message)
 
