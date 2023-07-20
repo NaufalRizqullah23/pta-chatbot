@@ -5,14 +5,22 @@ import random
 import json
 import nltk
 from flask import Flask, render_template, request
-from keras.models import load_model
+from keras.models import load_model, model_from_json
 from keras.preprocessing.text import Tokenizer
 from keras_preprocessing.sequence import pad_sequences
 from sklearn.preprocessing import LabelEncoder
 from nltk.stem import WordNetLemmatizer
+import pickle
 
 
 app = Flask(__name__)
+
+#load the tokenizer and label encoder
+with open("tokenizer.pkl","rb") as tokenizer_file:
+    tokenizer = pickle.load(tokenizer_file)
+
+with open("label_encoder.pkl","rb") as le_file:
+    le = pickle.load(le_file)
 
 
 # load the dataset
@@ -41,6 +49,7 @@ for intent in data1['intents']:
                 classes.append(intent['tag'])
 
 data = pd.DataFrame({"patterns": inputs, "tags": tags})
+
 
 #removing punctuation
 data['patterns'] = data['patterns'].apply(lambda wrd:[ltrs.lower() for ltrs in wrd if ltrs not in string.punctuation])
@@ -77,22 +86,31 @@ vocabulary = len(tokenizer.word_index)
 # #output length
 output_length = le.classes_.shape[0]
 
-# load the model
-model = load_model('model_rnn_fix.h5')
+# # load the model
+# model = load_model('model_rnn_fix.h5')
+
+#load model architecture
+with open("model_rnn.json", "r") as json_file:
+    loaded_model_json = json_file.read()
+
+#load model weight
+model = model_from_json(loaded_model_json)
+model.load_weights("model_rnn.h5")
+
 
 threshold = 0.65
 
 
 def preprocess_message(message):
-    # text_p = []
-    # prediction_input = message
-    # prediction_input = [letters.lower() for letters in prediction_input if letters not in string.punctuation]
-    # prediction_input = ''.join(prediction_input)
-    # text_p.append(prediction_input)
-    prediction_input = message.lower()
-    prediction_input = ''.join(
-        [char for char in prediction_input if char not in string.punctuation])
-    text_p = [prediction_input]
+    text_p = []
+    prediction_input = message
+    prediction_input = [letters.lower() for letters in prediction_input if letters not in string.punctuation]
+    prediction_input = ''.join(prediction_input)
+    text_p.append(prediction_input)
+    # prediction_input = message.lower()
+    # prediction_input = ''.join(
+    #     [char for char in prediction_input if char not in string.punctuation])
+    # text_p = [prediction_input]
     prediction_input = tokenizer.texts_to_sequences(text_p)
     prediction_input = np.array(prediction_input).reshape(-1)
     prediction_input = pad_sequences([prediction_input],input_shape)
